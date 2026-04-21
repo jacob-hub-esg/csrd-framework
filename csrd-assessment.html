@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CSRD Readiness Assessment Framework</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#07100f;font-family:'DM Mono',monospace;color:#e2f5ec;min-height:100vh;}
+select,input{appearance:none;-webkit-appearance:none;outline:none;}
+select option{background:#07100f;}
+input::placeholder{color:#2d5a45;}
+select:focus,input:focus{border-color:#22c55e!important;}
+.fade{animation:fadeUp 0.35s ease forwards;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.card{background:#0d1f18;border:1px solid #1a3d30;border-radius:16px;padding:28px;}
+.lbl{font-size:11px;color:#4ade80;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;display:block;}
+.inp{width:100%;background:#071510;border:1px solid #1a3d30;border-radius:8px;color:#e2f5ec;padding:11px 14px;font-size:14px;font-family:'DM Mono',monospace;transition:border-color 0.2s;}
+.sel{width:100%;background:#071510;border:1px solid #1a3d30;border-radius:8px;color:#e2f5ec;padding:11px 14px;font-size:14px;font-family:'DM Mono',monospace;cursor:pointer;}
+.btn-p{background:linear-gradient(135deg,#22c55e,#16a34a);color:#071510;border:none;border-radius:10px;padding:13px 28px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Mono',monospace;}
+.btn-s{background:transparent;color:#4ade80;border:1px solid #1a3d30;border-radius:10px;padding:11px 22px;font-size:13px;cursor:pointer;font-family:'DM Mono',monospace;}
+.btn-p:hover{opacity:0.9;} .btn-s:hover{border-color:#4ade80;}
+.tag{font-family:'Syne',sans-serif;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.prog{height:6px;background:#0d1f18;border-radius:99px;overflow:hidden;border:1px solid #1a3d30;}
+.prog-fill{height:100%;border-radius:99px;transition:width 0.8s ease;}
+.q-opt{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:8px;cursor:pointer;margin-bottom:7px;transition:all 0.15s;border:1px solid #1a3d30;background:#071510;}
+.q-opt:hover{border-color:#4ade80;}
+.q-opt.sel-opt{border-color:#22c55e;background:#0a2218;}
+.radio{width:18px;height:18px;border-radius:50%;border:2px solid #1a3d30;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+.radio.checked{border-color:#22c55e;background:#22c55e;}
+.section-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:99px;font-size:11px;letter-spacing:1px;text-transform:uppercase;}
+@media(max-width:600px){.grid2,.grid3{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div style="background:linear-gradient(135deg,#0a1f18,#07100f);border-bottom:1px solid #1a3d30;padding:20px 32px;display:flex;align-items:center;gap:14px;">
+  <div style="width:36px;height:36px;background:linear-gradient(135deg,#22c55e,#16a34a);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">📋</div>
+  <div>
+    <div class="tag" style="font-size:19px;color:#fff;letter-spacing:-0.3px;">CSRD Readiness Framework</div>
+    <div style="font-size:10px;color:#4ade80;letter-spacing:2px;text-transform:uppercase;margin-top:2px;">Corporate Sustainability Reporting Directive · ESG Assessment Tool</div>
+  </div>
+  <div style="margin-left:auto;font-size:10px;color:#2d5a45;letter-spacing:1px;text-align:right;">ESRS · GRI · TCFD<br>SASB · BRSR</div>
+</div>
+
+<!-- PROGRESS BAR -->
+<div style="background:#0d1f18;border-bottom:1px solid #1a3d30;padding:0 32px;">
+  <div style="max-width:820px;margin:0 auto;display:flex;align-items:center;gap:0;" id="progressBar"></div>
+</div>
+
+<div style="max-width:820px;margin:0 auto;padding:28px 24px 60px;" id="app"></div>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────────────────────
+const SECTIONS = [
+  {
+    id:"E1", area:"Environment", title:"Climate Change", color:"#22c55e", icon:"🌡️",
+    esrs:"ESRS E1", desc:"GHG emissions, energy use, climate transition plans and physical climate risks.",
+    questions:[
+      {id:"e1q1", text:"Do you measure and report Scope 1 (direct) GHG emissions?", weight:15},
+      {id:"e1q2", text:"Do you measure and report Scope 2 (indirect, energy) GHG emissions?", weight:15},
+      {id:"e1q3", text:"Do you have a climate transition plan aligned with the Paris Agreement (1.5°C)?", weight:20},
+      {id:"e1q4", text:"Have you set Science-Based Targets (SBTi) for emission reduction?", weight:15},
+      {id:"e1q5", text:"Do you assess and report physical climate risks to your operations?", weight:10},
+      {id:"e1q6", text:"Do you track and report energy consumption (total and renewable share)?", weight:10},
+      {id:"e1q7", text:"Is your climate data verified by a third party?", weight:15},
+    ],
+    actions:{
+      low:["Calculate your Scope 1 & 2 emissions using GHG Protocol methodology","Conduct an energy audit to establish a consumption baseline","Identify key climate-related risks using TCFD framework"],
+      mid:["Develop a Paris-aligned climate transition plan with interim milestones","Set SBTi targets and register with the Science Based Targets initiative","Engage a third-party auditor to verify your emissions data"],
+      high:["Expand coverage to Scope 3 value chain emissions","Publish a standalone TCFD-aligned climate report","Integrate climate KPIs into executive performance metrics"],
+    }
+  },
+  {
+    id:"E2", area:"Environment", title:"Pollution", color:"#84cc16", icon:"🏭",
+    esrs:"ESRS E2", desc:"Air, water and soil pollution, substances of concern, and pollution-related incidents.",
+    questions:[
+      {id:"e2q1", text:"Do you monitor and report air pollutant emissions (NOx, SOx, particulates)?", weight:20},
+      {id:"e2q2", text:"Do you track water pollutant discharges to water bodies?", weight:20},
+      {id:"e2q3", text:"Do you manage and report on substances of concern (hazardous chemicals)?", weight:20},
+      {id:"e2q4", text:"Do you have a pollution incident response and reporting procedure?", weight:20},
+      {id:"e2q5", text:"Do you set reduction targets for key pollutants?", weight:20},
+    ],
+    actions:{
+      low:["Map your primary pollution sources (air, water, soil)","Establish baseline monitoring for key pollutants","Develop a pollution incident response protocol"],
+      mid:["Set measurable pollutant reduction targets with timelines","Implement water discharge monitoring aligned with local regulations","Report on substances of concern per REACH regulation"],
+      high:["Achieve third-party certification for pollution management (ISO 14001)","Publish annual pollution data against public reduction targets","Integrate pollution KPIs into supplier contracts"],
+    }
+  },
+  {
+    id:"E3", area:"Environment", title:"Water & Marine Resources", color:"#38bdf8", icon:"💧",
+    esrs:"ESRS E3", desc:"Water consumption, withdrawals, water stress, and impacts on marine ecosystems.",
+    questions:[
+      {id:"e3q1", text:"Do you track total water withdrawal by source (municipal, groundwater, surface)?", weight:25},
+      {id:"e3q2", text:"Do you assess operations in water-stressed areas using tools like WRI Aqueduct?", weight:25},
+      {id:"e3q3", text:"Do you set water reduction or efficiency targets?", weight:25},
+      {id:"e3q4", text:"Do you report on water recycling and reuse rates?", weight:25},
+    ],
+    actions:{
+      low:["Implement water metering across all major facilities","Use WRI Aqueduct to identify operations in water-stressed areas","Establish a water baseline for year-on-year comparison"],
+      mid:["Set site-level water reduction targets, prioritising stressed areas","Implement water recycling and greywater reuse systems","Report water intensity metrics (m³ per unit of revenue or production)"],
+      high:["Achieve Alliance for Water Stewardship (AWS) certification","Conduct watershed-level impact assessments","Include water stewardship criteria in supplier assessments"],
+    }
+  },
+  {
+    id:"E4", area:"Environment", title:"Biodiversity & Ecosystems", color:"#a3e635", icon:"🌿",
+    esrs:"ESRS E4", desc:"Impacts and dependencies on biodiversity, ecosystems, and species.",
+    questions:[
+      {id:"e4q1", text:"Have you identified your key dependencies on ecosystem services?", weight:25},
+      {id:"e4q2", text:"Do you assess the biodiversity impact of your operations and supply chain?", weight:25},
+      {id:"e4q3", text:"Do you have a biodiversity protection or restoration commitment?", weight:25},
+      {id:"e4q4", text:"Do you report on land use and habitat impacts?", weight:25},
+    ],
+    actions:{
+      low:["Use TNFD or SBTN frameworks to screen biodiversity dependencies","Map operations near protected areas or biodiversity hotspots","Conduct a basic ecosystem services assessment"],
+      mid:["Develop a biodiversity action plan with measurable targets","Report on land use change and habitat restoration activities","Engage suppliers on biodiversity impacts in the supply chain"],
+      high:["Adopt Science-Based Targets for Nature (SBTN)","Publish a TNFD-aligned nature report","Invest in nature-based solutions and biodiversity offsetting"],
+    }
+  },
+  {
+    id:"E5", area:"Environment", title:"Resource Use & Circular Economy", color:"#fbbf24", icon:"♻️",
+    esrs:"ESRS E5", desc:"Material use, waste generation, circular economy strategies, and product end-of-life.",
+    questions:[
+      {id:"e5q1", text:"Do you track and report total waste generated by type and disposal route?", weight:20},
+      {id:"e5q2", text:"Do you measure material consumption and resource efficiency?", weight:20},
+      {id:"e5q3", text:"Do you have a circular economy strategy (reuse, repair, recycling)?", weight:20},
+      {id:"e5q4", text:"Do you report on the recycled content in your products or packaging?", weight:20},
+      {id:"e5q5", text:"Do you set waste reduction or diversion-from-landfill targets?", weight:20},
+    ],
+    actions:{
+      low:["Conduct a waste audit to baseline generation by type","Map material inputs and identify inefficiencies","Implement basic waste segregation and recycling streams"],
+      mid:["Develop a circular economy roadmap with waste reduction targets","Report on recycled content and product lifecycle impacts","Engage packaging suppliers on circular design principles"],
+      high:["Achieve zero-waste-to-landfill certification","Design products for disassembly and end-of-life recovery","Publish an annual circular economy progress report"],
+    }
+  },
+  {
+    id:"S1", area:"Social", title:"Own Workforce", color:"#c084fc", icon:"👥",
+    esrs:"ESRS S1", desc:"Employment conditions, health & safety, diversity, and workers' rights.",
+    questions:[
+      {id:"s1q1", text:"Do you report on workforce composition (gender, age, nationality, contract type)?", weight:15},
+      {id:"s1q2", text:"Do you measure and report on pay equity and gender pay gap?", weight:15},
+      {id:"s1q3", text:"Do you track and report health & safety incidents (TRIR, LTIR)?", weight:15},
+      {id:"s1q4", text:"Do you provide employee training and development hours per employee?", weight:10},
+      {id:"s1q5", text:"Do you have a whistleblowing or grievance mechanism in place?", weight:15},
+      {id:"s1q6", text:"Do you report employee turnover and retention rates?", weight:10},
+      {id:"s1q7", text:"Do you have collective bargaining agreements or worker representation?", weight:10},
+      {id:"s1q8", text:"Do you conduct regular employee engagement or satisfaction surveys?", weight:10},
+    ],
+    actions:{
+      low:["Establish HR data collection for key workforce metrics","Implement a formal health & safety management system","Create a confidential grievance and whistleblowing channel"],
+      mid:["Conduct a gender pay gap analysis and publish findings","Set diversity targets at management and board level","Report H&S KPIs (TRIR, LTIR) against industry benchmarks"],
+      high:["Achieve ISO 45001 occupational health & safety certification","Publish a standalone People & Culture report","Integrate workforce wellbeing into executive remuneration"],
+    }
+  },
+  {
+    id:"S2", area:"Social", title:"Workers in Value Chain", color:"#f472b6", icon:"🔗",
+    esrs:"ESRS S2", desc:"Labour rights, working conditions, and human rights in the supply chain.",
+    questions:[
+      {id:"s2q1", text:"Do you conduct human rights due diligence across your supply chain?", weight:25},
+      {id:"s2q2", text:"Do you screen and audit suppliers on labour and social standards?", weight:25},
+      {id:"s2q3", text:"Do you have a Supplier Code of Conduct covering social standards?", weight:25},
+      {id:"s2q4", text:"Do you provide a remedy mechanism for workers in your value chain?", weight:25},
+    ],
+    actions:{
+      low:["Develop a Supplier Code of Conduct covering ILO core labour standards","Map Tier 1 suppliers and identify high-risk geographies","Conduct a supply chain human rights risk screening"],
+      mid:["Implement supplier social audits for high-risk categories","Publish your supply chain due diligence process","Establish a grievance mechanism accessible to supply chain workers"],
+      high:["Extend due diligence to Tier 2 and Tier 3 suppliers","Join industry initiatives (e.g. UN Global Compact, SEDEX)","Report against UN Guiding Principles on Business and Human Rights"],
+    }
+  },
+  {
+    id:"S3", area:"Social", title:"Affected Communities", color:"#fb923c", icon:"🏘️",
+    esrs:"ESRS S3", desc:"Impacts on local communities, indigenous peoples, and socioeconomic rights.",
+    questions:[
+      {id:"s3q1", text:"Do you identify and engage with communities affected by your operations?", weight:30},
+      {id:"s3q2", text:"Do you assess socioeconomic and environmental impacts on local communities?", weight:35},
+      {id:"s3q3", text:"Do you have a community grievance mechanism and track resolutions?", weight:35},
+    ],
+    actions:{
+      low:["Map communities in proximity to operations and identify key concerns","Establish a community engagement and consultation process","Create a formal community grievance mechanism"],
+      mid:["Conduct a Social Impact Assessment (SIA) for significant projects","Report on community investment and social value created","Include community feedback in strategic planning processes"],
+      high:["Publish a community impact report with measurable outcomes","Establish community advisory panels for ongoing dialogue","Align community programmes with local UN SDG priorities"],
+    }
+  },
+  {
+    id:"S4", area:"Social", title:"Consumers & End-Users", color:"#f97316", icon:"🛒",
+    esrs:"ESRS S4", desc:"Product safety, consumer rights, data privacy, and responsible marketing.",
+    questions:[
+      {id:"s4q1", text:"Do you have processes to ensure product safety and quality?", weight:25},
+      {id:"s4q2", text:"Do you comply with data privacy regulations (GDPR) and report on breaches?", weight:25},
+      {id:"s4q3", text:"Do you have a responsible marketing and anti-greenwashing policy?", weight:25},
+      {id:"s4q4", text:"Do you track and report customer complaints and resolution rates?", weight:25},
+    ],
+    actions:{
+      low:["Implement a formal product safety management system","Conduct a GDPR compliance audit and appoint a Data Protection Officer","Establish a customer complaint tracking and resolution process"],
+      mid:["Publish a responsible marketing policy and anti-greenwashing guidelines","Report on product safety incidents and corrective actions","Conduct customer satisfaction and trust surveys"],
+      high:["Achieve relevant product safety certifications (CE, ISO)","Publish a consumer rights and data privacy transparency report","Integrate consumer feedback into product development cycles"],
+    }
+  },
+  {
+    id:"G1", area:"Governance", title:"Business Conduct & Governance", color:"#60a5fa", icon:"🏛️",
+    esrs:"ESRS G1", desc:"Corporate governance, anti-corruption, lobbying, payment practices, and whistleblowing.",
+    questions:[
+      {id:"g1q1", text:"Do you have a Board-level sustainability committee or designated ESG oversight?", weight:15},
+      {id:"g1q2", text:"Do you have a formal anti-corruption and anti-bribery policy?", weight:15},
+      {id:"g1q3", text:"Do you disclose executive remuneration and its link to sustainability targets?", weight:10},
+      {id:"g1q4", text:"Do you have a code of business conduct covering ethics and integrity?", weight:15},
+      {id:"g1q5", text:"Do you disclose lobbying activities and political donations?", weight:10},
+      {id:"g1q6", text:"Do you report on payment practices to suppliers (prompt payment)?", weight:10},
+      {id:"g1q7", text:"Do you have an effective whistleblowing channel with confirmed confidentiality?", weight:15},
+      {id:"g1q8", text:"Is your sustainability data subject to external assurance or audit?", weight:10},
+    ],
+    actions:{
+      low:["Establish Board-level oversight of ESG risks and opportunities","Implement an anti-bribery and corruption (ABC) policy aligned with ISO 37001","Create a confidential whistleblowing channel (e.g. EthicsPoint)"],
+      mid:["Link executive remuneration to measurable sustainability KPIs","Disclose governance structure and board ESG competencies","Publish payment practice reporting for supply chain transparency"],
+      high:["Obtain external limited or reasonable assurance on sustainability data","Publish a Corporate Governance report aligned with GRI 200 series","Conduct regular Board ESG training and competency assessments"],
+    }
+  },
+];
+
+const AREA_COLORS = {Environment:"#22c55e", Social:"#c084fc", Governance:"#60a5fa"};
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let state = {
+  step: 0, // 0=intro, 1..N=sections, N+1=results
+  answers: {}, // {questionId: true/false}
+  company: { name:"", sector:"", size:"", country:"" }
+};
+
+const STEPS_TOTAL = SECTIONS.length + 2; // intro + sections + results
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+function sectionScore(sec){
+  let earned=0, total=0;
+  sec.questions.forEach(q=>{ total+=q.weight; if(state.answers[q.id]) earned+=q.weight; });
+  return total>0 ? Math.round((earned/total)*100) : 0;
+}
+
+function overallScore(){
+  let earned=0, total=0;
+  SECTIONS.forEach(sec=>sec.questions.forEach(q=>{ total+=q.weight; if(state.answers[q.id]) earned+=q.weight; }));
+  return total>0 ? Math.round((earned/total)*100) : 0;
+}
+
+function readinessLabel(score){
+  if(score>=80) return {label:"CSRD Ready",color:"#22c55e",desc:"Your organisation demonstrates strong CSRD readiness. Focus on continuous improvement and external assurance."};
+  if(score>=60) return {label:"On Track",color:"#84cc16",desc:"Good progress. Address remaining gaps to achieve full compliance before the CSRD deadline."};
+  if(score>=40) return {label:"Developing",color:"#f59e0b",desc:"Foundational elements are in place. Significant work is needed across several disclosure areas."};
+  return {label:"Action Required",color:"#ef4444",desc:"Your organisation requires substantial effort to meet CSRD requirements. Prioritise the high-impact gaps below."};
+}
+
+function actionLevel(score){
+  if(score>=70) return "high";
+  if(score>=40) return "mid";
+  return "low";
+}
+
+function go(s){
+  const app=document.getElementById("app");
+  app.style.opacity=0;
+  setTimeout(()=>{ state.step=s; renderProgress(); render(); app.className="fade"; app.style.opacity=1; },120);
+}
+
+// ─── PROGRESS BAR ────────────────────────────────────────────────────────────
+function renderProgress(){
+  const bar=document.getElementById("progressBar");
+  const cur=state.step;
+  const total=SECTIONS.length+1;
+  const pct=Math.round((Math.max(0,cur)/total)*100);
+  bar.innerHTML=`
+    <div style="flex:1;padding:12px 0;display:flex;align-items:center;gap:12px;">
+      <div style="flex:1;height:4px;background:#1a3d30;border-radius:99px;overflow:hidden;">
+        <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,#22c55e,#16a34a);border-radius:99px;transition:width 0.5s ease;"></div>
+      </div>
+      <span style="font-size:11px;color:#4a7a62;white-space:nowrap;">${cur===0?"Start":cur>SECTIONS.length?"Complete":`Section ${cur} of ${SECTIONS.length}`} · ${pct}%</span>
+    </div>`;
+}
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+function render(){
+  const app=document.getElementById("app");
+
+  // ── INTRO ──
+  if(state.step===0){
+    app.innerHTML=`
+    <div class="card" style="margin-bottom:18px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+        <span style="font-size:28px;">📋</span>
+        <div>
+          <h2 class="tag" style="font-size:26px;color:#fff;">CSRD Readiness Assessment</h2>
+          <p style="color:#4a7a62;font-size:13px;margin-top:4px;">10 ESRS sections · ~40 questions · Takes about 10 minutes</p>
+        </div>
+      </div>
+      <p style="color:#9dbfb0;font-size:14px;line-height:1.8;margin-bottom:24px;">
+        The <strong style="color:#e2f5ec;">Corporate Sustainability Reporting Directive (CSRD)</strong> requires EU companies to disclose sustainability information across Environmental, Social and Governance dimensions using the <strong style="color:#e2f5ec;">European Sustainability Reporting Standards (ESRS)</strong>.<br><br>
+        This tool assesses your current readiness, identifies gaps, and provides prioritised action recommendations for each disclosure area.
+      </p>
+      <div class="grid3" style="margin-bottom:24px;">
+        ${[
+          {icon:"🌱",label:"5 Environmental",desc:"E1–E5: Climate, Pollution, Water, Biodiversity, Resources",col:"#22c55e"},
+          {icon:"🤝",label:"4 Social",desc:"S1–S4: Workforce, Value Chain, Communities, Consumers",col:"#c084fc"},
+          {icon:"🏛️",label:"1 Governance",desc:"G1: Business Conduct & Corporate Governance",col:"#60a5fa"},
+        ].map(a=>`<div style="background:#071510;border:1px solid #1a3d30;border-radius:10px;padding:16px;">
+          <div style="font-size:20px;margin-bottom:8px;">${a.icon}</div>
+          <div style="font-size:13px;font-weight:700;color:${a.col};margin-bottom:4px;">${a.label}</div>
+          <div style="font-size:11px;color:#4a7a62;line-height:1.5;">${a.desc}</div>
+        </div>`).join("")}
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:18px;">
+      <h3 class="tag" style="color:#fff;font-size:18px;margin-bottom:20px;">Company Information</h3>
+      <div class="grid2" style="margin-bottom:16px;">
+        <div>
+          <label class="lbl">Company Name</label>
+          <input class="inp" id="cname" placeholder="e.g. Acme Corp" value="${state.company.name}"/>
+        </div>
+        <div>
+          <label class="lbl">Country</label>
+          <input class="inp" id="ccountry" placeholder="e.g. Denmark" value="${state.company.country}"/>
+        </div>
+      </div>
+      <div class="grid2">
+        <div>
+          <label class="lbl">Industry Sector</label>
+          <select class="sel" id="csector">
+            ${["Real Estate","Manufacturing","Retail & Consumer","Financial Services","Technology","Healthcare","Energy & Utilities","Construction","Transport & Logistics","Agriculture","Other"].map(s=>`<option ${s===state.company.sector?"selected":""}>${s}</option>`).join("")}
+          </select>
+        </div>
+        <div>
+          <label class="lbl">Company Size</label>
+          <select class="sel" id="csize">
+            ${["<50 employees","50–250 employees","250–500 employees","500–1000 employees",">1000 employees"].map(s=>`<option ${s===state.company.size?"selected":""}>${s}</option>`).join("")}
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;gap:12px;">
+      <button class="btn-p" onclick="
+        state.company.name=document.getElementById('cname').value||'Your Company';
+        state.company.country=document.getElementById('ccountry').value||'EU';
+        state.company.sector=document.getElementById('csector').value;
+        state.company.size=document.getElementById('csize').value;
+        go(1);
+      ">Begin Assessment →</button>
+    </div>`;
+  }
+
+  // ── SECTION QUESTIONS ──
+  else if(state.step>=1 && state.step<=SECTIONS.length){
+    const sec=SECTIONS[state.step-1];
+    const score=sectionScore(sec);
+    app.innerHTML=`
+    <div class="card">
+      <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:6px;">
+        <div style="width:42px;height:42px;border-radius:10px;background:${sec.color}22;border:1px solid ${sec.color}55;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">${sec.icon}</div>
+        <div style="flex:1;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+            <span style="font-size:11px;color:${sec.color};letter-spacing:1.5px;text-transform:uppercase;">${sec.esrs} · ${sec.area}</span>
+          </div>
+          <h2 class="tag" style="font-size:22px;color:#fff;">${sec.title}</h2>
+          <p style="color:#4a7a62;font-size:13px;margin-top:4px;line-height:1.6;">${sec.desc}</p>
+        </div>
+      </div>
+
+      <div style="margin:20px 0 24px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+          <span style="font-size:11px;color:#4a7a62;">Section progress</span>
+          <span style="font-size:11px;color:${sec.color};">${score}%</span>
+        </div>
+        <div class="prog"><div class="prog-fill" style="width:${score}%;background:${sec.color};"></div></div>
+      </div>
+
+      ${sec.questions.map((q,i)=>{
+        const checked=!!state.answers[q.id];
+        return`<div class="q-opt ${checked?"sel-opt":""}" onclick="state.answers['${q.id}']=!state.answers['${q.id}'];render();">
+          <div class="radio ${checked?"checked":""}">
+            ${checked?`<svg width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="#071510" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`:""}
+          </div>
+          <span style="font-size:13px;flex:1;line-height:1.5;">${q.text}</span>
+          <span style="font-size:10px;color:#4a7a62;flex-shrink:0;">+${q.weight}pts</span>
+        </div>`;
+      }).join("")}
+
+      <div style="display:flex;justify-content:space-between;margin-top:28px;align-items:center;">
+        <button class="btn-s" onclick="go(${state.step-1})">← Back</button>
+        <div style="display:flex;gap:10px;">
+          <button class="btn-s" onclick="go(${state.step+1})" style="font-size:12px;padding:9px 16px;">Skip</button>
+          <button class="btn-p" onclick="go(${state.step+1})">${state.step===SECTIONS.length?"View Results →":"Next Section →"}</button>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // ── RESULTS ──
+  else if(state.step>SECTIONS.length){
+    const overall=overallScore();
+    const rl=readinessLabel(overall);
+    const envSecs=SECTIONS.filter(s=>s.area==="Environment");
+    const socSecs=SECTIONS.filter(s=>s.area==="Social");
+    const govSecs=SECTIONS.filter(s=>s.area==="Governance");
+    const areaScore=(secs)=>Math.round(secs.reduce((a,s)=>a+sectionScore(s),0)/secs.length);
+    const envScore=areaScore(envSecs);
+    const socScore=areaScore(socSecs);
+    const govScore=areaScore(govSecs);
+
+    // find weakest sections
+    const ranked=[...SECTIONS].map(s=>({...s,score:sectionScore(s)})).sort((a,b)=>a.score-b.score);
+    const gaps=ranked.slice(0,3);
+
+    app.innerHTML=`
+    <!-- Header banner -->
+    <div style="background:linear-gradient(135deg,${rl.color}22,#07100f);border:1px solid ${rl.color}44;border-radius:16px;padding:24px 28px;margin-bottom:18px;display:flex;align-items:center;gap:20px;">
+      <div style="text-align:center;flex-shrink:0;">
+        <div style="width:80px;height:80px;border-radius:50%;background:conic-gradient(${rl.color} ${overall*3.6}deg,#1a3d30 ${overall*3.6}deg);display:flex;align-items:center;justify-content:center;">
+          <div style="width:60px;height:60px;border-radius:50%;background:#0d1f18;display:flex;align-items:center;justify-content:center;">
+            <span class="tag" style="font-size:22px;color:${rl.color};">${overall}</span>
+          </div>
+        </div>
+        <div style="font-size:10px;color:#4a7a62;margin-top:6px;">OVERALL</div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:${rl.color};letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">CSRD Readiness Score</div>
+        <div class="tag" style="font-size:24px;color:#fff;margin-bottom:6px;">${state.company.name} — ${rl.label}</div>
+        <div style="font-size:13px;color:#9dbfb0;line-height:1.6;">${rl.desc}</div>
+      </div>
+    </div>
+
+    <!-- Pillar scores -->
+    <div class="grid3" style="margin-bottom:18px;">
+      ${[
+        {label:"Environment",score:envScore,col:"#22c55e",icon:"🌱",subs:"E1–E5"},
+        {label:"Social",score:socScore,col:"#c084fc",icon:"🤝",subs:"S1–S4"},
+        {label:"Governance",score:govScore,col:"#60a5fa",icon:"🏛️",subs:"G1"},
+      ].map(p=>`<div class="card" style="padding:22px;text-align:center;">
+        <div style="font-size:22px;margin-bottom:8px;">${p.icon}</div>
+        <div style="font-size:10px;color:#4a7a62;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">${p.label} · ${p.subs}</div>
+        <div class="tag" style="font-size:30px;color:${p.col};margin-bottom:8px;">${p.score}%</div>
+        <div class="prog"><div class="prog-fill" style="width:${p.score}%;background:${p.col};"></div></div>
+      </div>`).join("")}
+    </div>
+
+    <!-- Section breakdown -->
+    <div class="card" style="margin-bottom:18px;">
+      <h3 class="tag" style="color:#fff;margin-bottom:20px;font-size:18px;">Section-by-Section Breakdown</h3>
+      ${SECTIONS.map(sec=>{
+        const sc=sectionScore(sec);
+        const answered=sec.questions.filter(q=>state.answers[q.id]).length;
+        const rLabel=sc>=70?"Strong":sc>=40?"Developing":"Gap";
+        const rCol=sc>=70?"#22c55e":sc>=40?"#f59e0b":"#ef4444";
+        return`<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;padding:12px 14px;background:#071510;border-radius:10px;border:1px solid #1a3d30;">
+          <span style="font-size:16px;width:26px;text-align:center;">${sec.icon}</span>
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+              <span style="font-size:12px;color:#e2f5ec;font-weight:700;">${sec.id} — ${sec.title}</span>
+              <span style="font-size:10px;color:${rCol};background:${rCol}22;padding:2px 8px;border-radius:99px;">${rLabel}</span>
+            </div>
+            <div class="prog"><div class="prog-fill" style="width:${sc}%;background:${sec.color};"></div></div>
+          </div>
+          <div style="text-align:right;flex-shrink:0;">
+            <div style="font-size:16px;font-weight:700;color:${sec.color};" class="tag">${sc}%</div>
+            <div style="font-size:10px;color:#4a7a62;">${answered}/${sec.questions.length} yes</div>
+          </div>
+        </div>`;
+      }).join("")}
+    </div>
+
+    <!-- Priority Gaps -->
+    <div class="card" style="margin-bottom:18px;">
+      <h3 class="tag" style="color:#fff;margin-bottom:6px;font-size:18px;">⚠️ Priority Gaps</h3>
+      <p style="color:#4a7a62;font-size:13px;margin-bottom:20px;">Your three lowest-scoring sections requiring immediate attention.</p>
+      ${gaps.map((sec,i)=>`<div style="border:1px solid ${sec.color}44;border-radius:12px;padding:20px;margin-bottom:14px;background:${sec.color}08;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+          <span style="font-size:18px;">${sec.icon}</span>
+          <div>
+            <div style="font-size:11px;color:${sec.color};letter-spacing:1px;text-transform:uppercase;">${sec.esrs} · Priority ${i+1}</div>
+            <div class="tag" style="color:#fff;font-size:16px;">${sec.title} — ${sec.score}%</div>
+          </div>
+        </div>
+        <div style="font-size:12px;color:#4a7a62;margin-bottom:12px;">Unanswered items:</div>
+        ${sec.questions.filter(q=>!state.answers[q.id]).slice(0,3).map(q=>`
+          <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:7px;">
+            <span style="color:#ef4444;font-size:14px;flex-shrink:0;margin-top:1px;">✗</span>
+            <span style="font-size:12px;color:#9dbfb0;line-height:1.5;">${q.text}</span>
+          </div>`).join("")}
+      </div>`).join("")}
+    </div>
+
+    <!-- Action Recommendations -->
+    <div class="card" style="margin-bottom:18px;">
+      <h3 class="tag" style="color:#fff;margin-bottom:6px;font-size:18px;">🎯 Action Recommendations</h3>
+      <p style="color:#4a7a62;font-size:13px;margin-bottom:20px;">Tailored actions based on your scores across all sections.</p>
+      ${SECTIONS.map(sec=>{
+        const sc=sectionScore(sec);
+        const lvl=actionLevel(sc);
+        const actions=sec.actions[lvl];
+        const lvlLabel=lvl==="high"?"Advanced":lvl==="mid"?"Intermediate":"Foundation";
+        const lvlCol=lvl==="high"?"#22c55e":lvl==="mid"?"#f59e0b":"#ef4444";
+        return`<div style="margin-bottom:16px;padding:18px;background:#071510;border-radius:12px;border:1px solid #1a3d30;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+            <span>${sec.icon}</span>
+            <span class="tag" style="color:#fff;font-size:14px;">${sec.id} — ${sec.title}</span>
+            <span style="font-size:10px;color:${lvlCol};background:${lvlCol}22;padding:2px 8px;border-radius:99px;margin-left:auto;">${lvlLabel}</span>
+          </div>
+          ${actions.map(a=>`<div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:7px;">
+            <span style="color:#22c55e;font-size:13px;flex-shrink:0;margin-top:1px;">→</span>
+            <span style="font-size:12px;color:#9dbfb0;line-height:1.6;">${a}</span>
+          </div>`).join("")}
+        </div>`;
+      }).join("")}
+    </div>
+
+    <!-- CSRD Timeline -->
+    <div class="card" style="margin-bottom:18px;">
+      <h3 class="tag" style="color:#fff;margin-bottom:6px;font-size:18px;">📅 CSRD Compliance Timeline</h3>
+      <p style="color:#4a7a62;font-size:13px;margin-bottom:20px;">Key milestones for CSRD implementation across company categories.</p>
+      ${[
+        {year:"2024",label:"Large PIEs >500 employees",desc:"Already in scope — first CSRD reports due for FY2024",col:"#ef4444"},
+        {year:"2025",label:"Large companies >250 employees",desc:"First CSRD reports due for FY2025 (submit in 2026)",col:"#f59e0b"},
+        {year:"2026",label:"Listed SMEs",desc:"First CSRD reports due for FY2026 (submit in 2027)",col:"#22c55e"},
+        {year:"2028",label:"Non-EU companies",desc:"Third-country companies with EU revenue >€150M in scope",col:"#60a5fa"},
+      ].map(t=>`<div style="display:flex;gap:16px;align-items:flex-start;margin-bottom:14px;">
+        <div style="width:56px;text-align:center;flex-shrink:0;">
+          <div style="font-size:14px;font-weight:700;color:${t.col};" class="tag">${t.year}</div>
+        </div>
+        <div style="flex:1;padding-bottom:14px;border-bottom:1px solid #1a3d30;">
+          <div style="font-size:13px;color:#e2f5ec;margin-bottom:3px;">${t.label}</div>
+          <div style="font-size:12px;color:#4a7a62;">${t.desc}</div>
+        </div>
+      </div>`).join("")}
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px;">
+      <button class="btn-s" onclick="go(${SECTIONS.length})">← Review Last Section</button>
+      <button class="btn-s" onclick="state={step:0,answers:{},company:{name:'',sector:'',size:'',country:''}};go(0);">↩ Start New Assessment</button>
+    </div>`;
+  }
+}
+
+renderProgress();
+render();
+</script>
+</body>
+</html>
