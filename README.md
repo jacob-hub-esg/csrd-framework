@@ -11,7 +11,7 @@ operating in the EU sustainability reporting space.
 
 ## 🌿 Live Demo
 
-> Open `csrd-assessment.html` directly in any modern browser — no install, no server required.
+> Open `https://jacob-hub-esg.github.io/csrd-framework/` directly in any modern browser — no install, no server required.
 
 ---
 
@@ -90,9 +90,9 @@ assessment that:
 
 ```bash
 # No installation needed — just clone and open
-git clone https://github.com/your-username/csrd-assessment
-cd csrd-assessment
-open csrd-assessment.html
+git clone https://github.com/jacob-hub-esg/csrd-framework
+cd csrd-framework
+open https://jacob-hub-esg.github.io/csrd-framework/
 ```
 
 Or serve it statically:
